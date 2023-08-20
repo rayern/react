@@ -1,52 +1,46 @@
 import logo from './logo.svg';
 import './App.css';
-import { useState,useEffect } from 'react';
+import {Link, Outlet} from "react-router-dom"
 
-const query = `
-  query {
-    allLifts {
-      name,
-      elevationGain,
-      status
-    }
-  }
-`
-const opts = {
-  method: "POST",
-  headers: {"Content-Type": "application/json"},
-  body: JSON.stringify({query})
-}
-function Lift({name,elevationGain,status}){
+export function Home() {
   return (
     <>
-      <h1>{name}</h1>
-      <p>{elevationGain} {status}</p>
+      <nav>
+        <Link to="/about">About</Link>
+        <Link to="/contact">Contact</Link>
+      </nav>
+      <h1>Home</h1>
     </>
   )
 }
-
-function App() {
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  useEffect(() => {
-    setLoading(true)
-    fetch('https://snowtooth.moonhighway.com', opts)
-    .then(response => response.json())
-    .then(setData)
-    .then(() => setLoading(false))
-    .catch(setError)
-  },[])
-  if(loading) return (<h1>Loading...</h1>)
-  if(error) return (<pre>{JSON.stringify(error)}</pre>)
-  if(!data) return null
+export function About() {
   return (
-    <> 
-      {data.data.allLifts.map((lift) => (
-        <Lift name={lift.name} elevationGain={lift.elevationGain} status={lift.status}/>
-      ))}
+    <>
+      <nav>
+        <Link to="/">Home</Link>
+        <Link to="/about/history">History</Link>
+        <Link to="/contact">Contact</Link>
+      </nav>
+      <h1>About</h1>
+      <Outlet/>
     </>
   )
 }
+export function Contact() {
+  return (
+    <>
+      <nav>
+        <Link to="/">Home</Link>
+        <Link to="/about">About</Link>
+      </nav>
+      <h1>Contact</h1>
+    </>
+  )
+}
+export function History() {
+  return (<h1>History</h1>)
+}
+export function App() {
+  return <Home/>;
+}
 
-export default App;
