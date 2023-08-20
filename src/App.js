@@ -1,25 +1,52 @@
 import logo from './logo.svg';
 import './App.css';
+import { useState,useEffect } from 'react';
+
+const query = `
+  query {
+    allLifts {
+      name,
+      elevationGain,
+      status
+    }
+  }
+`
+const opts = {
+  method: "POST",
+  headers: {"Content-Type": "application/json"},
+  body: JSON.stringify({query})
+}
+function Lift({name,elevationGain,status}){
+  return (
+    <>
+      <h1>{name}</h1>
+      <p>{elevationGain} {status}</p>
+    </>
+  )
+}
 
 function App() {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  useEffect(() => {
+    setLoading(true)
+    fetch('https://snowtooth.moonhighway.com', opts)
+    .then(response => response.json())
+    .then(setData)
+    .then(() => setLoading(false))
+    .catch(setError)
+  },[])
+  if(loading) return (<h1>Loading...</h1>)
+  if(error) return (<pre>{JSON.stringify(error)}</pre>)
+  if(!data) return null
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <> 
+      {data.data.allLifts.map((lift) => (
+        <Lift name={lift.name} elevationGain={lift.elevationGain} status={lift.status}/>
+      ))}
+    </>
+  )
 }
 
 export default App;
